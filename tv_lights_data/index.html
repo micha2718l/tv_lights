@@ -1,0 +1,80 @@
+<DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-route.min.js"></script>
+<body>
+
+<script>
+var app = angular.module("myShoppingList", ["ngRoute"]).config(function($interpolateProvider){
+    $interpolateProvider.startSymbol('{[{').endSymbol('}]}');
+});
+
+app.controller("myCtrl", function($scope, $http) {
+    $scope.mainColorHue = "185";
+    $scope.mainAddGlitter = "1";
+    $scope.mainGlitterHue = "0";
+    $scope.mainGlitterPercent = "80";
+    $scope.brightness = "25";
+
+    $scope.loading = false;
+    $scope.lastCommandPassed = false;
+    $scope.sendCommand = function(command) {
+        $scope.loading = true;
+        $scope.lastCommandPassed = false;
+        $http({
+            method: 'GET',
+            url: '/sendCommand/' + command
+        }).then(function successCallback(response) {
+            $scope.loading = false;
+            if (response.data['resp']=="0") {
+                $scope.lastCommandPassed = false;
+            }else{
+                $scope.lastCommandPassed = true;
+            }
+        }, function errorCallback(response) {
+            $scope.lastCommandPassed = false;
+            $scope.loading = false;
+        });
+    }
+});
+</script>
+
+<div ng-app="myShoppingList" ng-controller="myCtrl">
+    <button ng-click="sendCommand('s1_0*')">all_off</button>
+    <button ng-click="sendCommand('s1_1*')">all_on</button>
+    <button ng-click="sendCommand('s1_2*')">all_purple</button>
+    <button ng-click="sendCommand('s1_3*')">all_main_color</button>
+    <button ng-click="sendCommand('s1_4*')">rainbow_solid_with_glitter</button>
+    <button ng-click="sendCommand('s1_5*')">rainbow</button>
+    <button ng-click="sendCommand('s1_6*')">rainbowWithGlitter</button>
+    <button ng-click="sendCommand('s1_7*')">confetti</button>
+    <button ng-click="sendCommand('s1_8*')">sinelon</button>
+    <button ng-click="sendCommand('s1_9*')">juggle</button>
+    <button ng-click="sendCommand('s1_10*')">bpm</button>
+    <p>
+        <input type="text" value="185" ng-model="mainColorHue">
+        <button ng-click="sendCommand('s2_'+ mainColorHue +'*')">mainColorHue (0-255)</button>
+    </p>
+    <p>
+        <input type="text" value="1" ng-model="mainAddGlitter">
+        <button ng-click="sendCommand('s3_'+ mainAddGlitter +'*')">mainAddGlitter (0,1)</button>
+    </p>
+    <p>
+        <input type="text" value="0" ng-model="mainGlitterHue">
+        <button ng-click="sendCommand('s4_'+ mainGlitterHue +'*')">mainGlitterHue (0-255)</button>
+    </p>
+    <p>
+        <input type="text" value="80" ng-model="mainGlitterPercent">
+        <button ng-click="sendCommand('s5_'+ mainGlitterPercent +'*')">mainGlitterPercent (0-99)</button> 
+    </p>
+    <p>
+        <input type="text" value="25" ng-model="brightness">
+        <button ng-click="sendCommand('s6_'+ brightness +'*')">brightness (0-255)</button>
+    </p>
+    <p ng-if= "lastCommandPassed">All good...</p>
+    <p ng-if="!lastCommandPassed">Waiting...</p>
+                  
+</div>
+
+</body>
+</html>
